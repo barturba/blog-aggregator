@@ -6,7 +6,6 @@ import (
 	"log"
 	"net/http"
 	"os"
-	"strings"
 	"time"
 
 	"github.com/barturba/blog-aggregator/internal/database"
@@ -17,8 +16,6 @@ import (
 type apiConfig struct {
 	DB *database.Queries
 }
-
-type authedHandler func(http.ResponseWriter, *http.Request, database.User)
 
 func main() {
 	err := godotenv.Load()
@@ -66,26 +63,4 @@ func main() {
 	log.Fatal(err)
 
 	fmt.Printf("the blog-aggregator has started\n")
-}
-
-func (cfg *apiConfig) middlewareAuth(handler authedHandler) http.HandlerFunc {
-	return func(w http.ResponseWriter, r *http.Request) {
-		authorization := r.Header.Get("Authorization")
-		if len(authorization) == 0 {
-			respondWithError(w, http.StatusInternalServerError, "No Apikey provided")
-			return
-		}
-		fmt.Printf("middlewareAuth: got apikey: %s\n", authorization)
-		authorization = strings.TrimPrefix(authorization, "ApiKey ")
-
-		user, err := cfg.DB.GetUser(r.Context(), authorization)
-		if err != nil {
-			respondWithError(w, http.StatusInternalServerError, "Error getting user")
-			return
-
-		}
-
-		handler(w, r, user)
-	}
-
 }
