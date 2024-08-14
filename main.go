@@ -38,16 +38,19 @@ func main() {
 		log.Fatal(err)
 	}
 	dbQueries := database.New(db)
-	cfg := apiConfig{
+
+	apiCfg := apiConfig{
 		DB: dbQueries,
 	}
 
-	m := http.NewServeMux()
+	mux := http.NewServeMux()
 
-	m.HandleFunc("POST /v1/users", cfg.handleUsers)
+	mux.HandleFunc("POST /v1/users", apiCfg.handleUsers)
+	mux.HandleFunc("GET /v1/healthz", handlerReadiness)
+	mux.HandleFunc("GET /v1/err", handlerErr)
 
 	srv := http.Server{
-		Handler:      m,
+		Handler:      mux,
 		Addr:         ":" + port,
 		WriteTimeout: 30 * time.Second,
 		ReadTimeout:  30 * time.Second,
