@@ -46,6 +46,7 @@ func main() {
 	mux := http.NewServeMux()
 
 	mux.HandleFunc("POST /v1/users", apiCfg.handleUsers)
+	mux.HandleFunc("GET /v1/users", apiCfg.getUsers)
 	mux.HandleFunc("GET /v1/healthz", handlerReadiness)
 	mux.HandleFunc("GET /v1/err", handlerErr)
 

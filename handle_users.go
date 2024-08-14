@@ -3,6 +3,7 @@ package main
 import (
 	"encoding/json"
 	"net/http"
+	"strings"
 	"time"
 
 	"github.com/barturba/blog-aggregator/internal/database"
@@ -35,6 +36,23 @@ func (cfg *apiConfig) handleUsers(w http.ResponseWriter, r *http.Request) {
 	if err != nil {
 		respondWithError(w, http.StatusInternalServerError, "Couldn't create user")
 		return
+	}
+	respondWithJSON(w, http.StatusOK, user)
+}
+
+func (cfg *apiConfig) getUsers(w http.ResponseWriter, r *http.Request) {
+	authorization := r.Header.Get("Authorization")
+	if len(authorization) == 0 {
+		respondWithError(w, http.StatusInternalServerError, "No Apikey provided")
+		return
+	}
+	authorization = strings.TrimPrefix(authorization, "ApiKey ")
+
+	user, err := cfg.DB.GetUser(r.Context(), authorization)
+	if err != nil {
+		respondWithError(w, http.StatusInternalServerError, "Error getting user")
+		return
+
 	}
 	respondWithJSON(w, http.StatusOK, user)
 }
