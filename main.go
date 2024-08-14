@@ -70,7 +70,6 @@ func main() {
 
 func (cfg *apiConfig) middlewareAuth(handler authedHandler) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
-		// authenticate here
 		authorization := r.Header.Get("Authorization")
 		if len(authorization) == 0 {
 			respondWithError(w, http.StatusInternalServerError, "No Apikey provided")

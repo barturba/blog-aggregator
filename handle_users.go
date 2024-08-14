@@ -11,8 +11,6 @@ import (
 )
 
 func (cfg *apiConfig) handleUsers(w http.ResponseWriter, r *http.Request) {
-
-	// Decode
 	type parameters struct {
 		Name string `json:"name"`
 	}
@@ -32,7 +30,6 @@ func (cfg *apiConfig) handleUsers(w http.ResponseWriter, r *http.Request) {
 			Name:      params.Name,
 		})
 
-	// Respond
 	if err != nil {
 		respondWithError(w, http.StatusInternalServerError, "Couldn't create user")
 		return

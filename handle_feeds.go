@@ -10,8 +10,6 @@ import (
 )
 
 func (cfg *apiConfig) handleFeeds(w http.ResponseWriter, r *http.Request, u database.User) {
-
-	// Decode
 	type parameters struct {
 		Name string `json:"name"`
 		URL  string `json:"url"`
@@ -34,27 +32,9 @@ func (cfg *apiConfig) handleFeeds(w http.ResponseWriter, r *http.Request, u data
 			UserID:    u.ID,
 		})
 
-	// Respond
 	if err != nil {
 		respondWithError(w, http.StatusInternalServerError, "Couldn't create feed")
 		return
 	}
 	respondWithJSON(w, http.StatusOK, feed)
 }
-
-// func (cfg *apiConfig) getUsers(w http.ResponseWriter, r *http.Request) {
-// 	authorization := r.Header.Get("Authorization")
-// 	if len(authorization) == 0 {
-// 		respondWithError(w, http.StatusInternalServerError, "No Apikey provided")
-// 		return
-// 	}
-// 	authorization = strings.TrimPrefix(authorization, "ApiKey ")
-
-// 	user, err := cfg.DB.GetUser(r.Context(), authorization)
-// 	if err != nil {
-// 		respondWithError(w, http.StatusInternalServerError, "Error getting user")
-// 		return
-
-// 	}
-// 	respondWithJSON(w, http.StatusOK, user)
-// }
