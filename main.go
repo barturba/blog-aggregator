@@ -2,7 +2,6 @@ package main
 
 import (
 	"database/sql"
-	"encoding/json"
 	"fmt"
 	"log"
 	"net/http"
@@ -10,7 +9,6 @@ import (
 	"time"
 
 	"github.com/barturba/blog-aggregator/internal/database"
-	"github.com/google/uuid"
 	"github.com/joho/godotenv"
 	_ "github.com/lib/pq"
 )
@@ -60,35 +58,4 @@ func main() {
 	log.Fatal(err)
 
 	fmt.Printf("the blog-aggregator has started\n")
-}
-
-func (cfg *apiConfig) handleUsers(w http.ResponseWriter, r *http.Request) {
-
-	// Decode
-	type parameters struct {
-		Name string `json:"name"`
-	}
-	decoder := json.NewDecoder(r.Body)
-	params := parameters{}
-	err := decoder.Decode(&params)
-	if err != nil {
-		log.Printf("Error decoding parameters: %s", err)
-		w.WriteHeader(http.StatusInternalServerError)
-		return
-	}
-
-	// Create a new user
-	user, err := cfg.DB.CreateUser(r.Context(),
-		database.CreateUserParams{
-			ID:        uuid.New(),
-			CreatedAt: time.Now(),
-			UpdatedAt: time.Now(),
-			Name:      params.Name,
-		})
-	if err != nil {
-		log.Printf("Couldn't create user")
-		w.WriteHeader(http.StatusInternalServerError)
-		return
-	}
-	respondWithJSON(w, http.StatusOK, user)
 }
