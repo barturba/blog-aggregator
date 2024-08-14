@@ -74,7 +74,7 @@ func (cfg *apiConfig) handleUsers(w http.ResponseWriter, r *http.Request) {
 	}
 
 	// Create a new user
-	_, err = cfg.DB.CreateUser(r.Context(),
+	user, err := cfg.DB.CreateUser(r.Context(),
 		database.CreateUserParams{
 			ID:        uuid.New(),
 			CreatedAt: time.Now(),
@@ -86,25 +86,5 @@ func (cfg *apiConfig) handleUsers(w http.ResponseWriter, r *http.Request) {
 		w.WriteHeader(http.StatusInternalServerError)
 		return
 	}
-
-	// Respond
-	// create a respondwithjson function
-	type returnVals struct {
-		// the key will be the name of struct field unless you give it an explicit JSON tag
-		CreatedAt time.Time `json:"created_at"`
-		ID        int       `json:"id"`
-	}
-	respBody := returnVals{
-		CreatedAt: time.Now(),
-		ID:        123,
-	}
-	dat, err := json.Marshal(respBody)
-	if err != nil {
-		log.Printf("Error marshalling JSON: %s", err)
-		w.WriteHeader(http.StatusInternalServerError)
-		return
-	}
-	w.Header().Set("Content-Type", "application/json")
-	w.WriteHeader(http.StatusOK)
-	w.Write(dat)
+	respondWithJSON(w, http.StatusOK, user)
 }
