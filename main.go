@@ -24,11 +24,16 @@ func main() {
 	if err != nil {
 		log.Fatal("Couldn't load .env file")
 	}
-	// check to make suer each of these env vars are set
-	port := fmt.Sprintf(":%s", os.Getenv("PORT"))
+
+	port := os.Getenv("PORT")
+	if port == "" {
+		log.Fatal("PORT environment variable is not set")
+	}
+
 	databaseURL := os.Getenv("DATABASE_URL")
-	fmt.Printf("PORT: %v\n", port)
-	fmt.Printf("DATABASE_URL: %v\n", databaseURL)
+	if databaseURL == "" {
+		log.Fatal("DATABASE_URL environment variable is not set")
+	}
 
 	db, err := sql.Open("postgres", databaseURL)
 	if err != nil {
@@ -38,7 +43,6 @@ func main() {
 	cfg := apiConfig{
 		DB: dbQueries,
 	}
-	fmt.Printf("dbQueries: %v\n", dbQueries)
 
 	m := http.NewServeMux()
 
@@ -46,7 +50,7 @@ func main() {
 
 	srv := http.Server{
 		Handler:      m,
-		Addr:         port,
+		Addr:         ":" + port,
 		WriteTimeout: 30 * time.Second,
 		ReadTimeout:  30 * time.Second,
 	}
