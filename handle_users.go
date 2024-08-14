@@ -45,7 +45,7 @@ func (cfg *apiConfig) getUsers(w http.ResponseWriter, r *http.Request) {
 	}
 	authorization = strings.TrimPrefix(authorization, "ApiKey ")
 
-	user, err := cfg.DB.GetUser(r.Context(), authorization)
+	user, err := cfg.DB.GetUserByAPIKey(r.Context(), authorization)
 	if err != nil {
 		respondWithError(w, http.StatusInternalServerError, "Error getting user")
 		return

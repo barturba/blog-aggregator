@@ -20,7 +20,7 @@ func (cfg *apiConfig) middlewareAuth(handler authedHandler) http.HandlerFunc {
 		fmt.Printf("middlewareAuth: got apikey: %s\n", authorization)
 		authorization = strings.TrimPrefix(authorization, "ApiKey ")
 
-		user, err := cfg.DB.GetUser(r.Context(), authorization)
+		user, err := cfg.DB.GetUserByAPIKey(r.Context(), authorization)
 		if err != nil {
 			respondWithError(w, http.StatusInternalServerError, "Error getting user")
 			return
