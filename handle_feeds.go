@@ -45,6 +45,6 @@ func (cfg *apiConfig) getFeeds(w http.ResponseWriter, r *http.Request) {
 		respondWithError(w, http.StatusInternalServerError, "Couldn't create feed")
 		return
 	}
-	// convert formats
+
 	respondWithJSON(w, http.StatusOK, databaseFeedsToFeeds(feeds))
 }
