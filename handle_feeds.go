@@ -31,10 +31,10 @@ func (cfg *apiConfig) handleFeeds(w http.ResponseWriter, r *http.Request, u data
 			Url:       params.URL,
 			UserID:    u.ID,
 		})
-
 	if err != nil {
 		respondWithError(w, http.StatusInternalServerError, "Couldn't create feed")
 		return
 	}
+
 	respondWithJSON(w, http.StatusOK, databaseFeedToFeed(feed))
 }
