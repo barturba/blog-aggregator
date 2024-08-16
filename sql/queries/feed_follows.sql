@@ -4,7 +4,7 @@ values ($1, $2, $3, $4, $5)
 RETURNING *;
 
 -- name: GetFeedFollows :many
-SELECT * FROM feed_follows;
+SELECT * FROM feed_follows where user_id = $1;
 
 -- name: DeleteFeedFollows :exec
 DELETE FROM feed_follows

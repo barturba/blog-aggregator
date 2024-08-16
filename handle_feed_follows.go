@@ -32,7 +32,7 @@ func (cfg *apiConfig) handleFeedFollows(w http.ResponseWriter, r *http.Request, 
 			UserID:    u.ID,
 		})
 	if err != nil {
-		respondWithError(w, http.StatusInternalServerError, "Couldn't create feed")
+		respondWithError(w, http.StatusInternalServerError, "Couldn't create feed follow")
 		return
 	}
 
@@ -50,9 +50,19 @@ func (cfg *apiConfig) deleteFeedFollows(w http.ResponseWriter, r *http.Request, 
 
 	err = cfg.DB.DeleteFeedFollows(r.Context(), feedFollowUUID)
 	if err != nil {
-		respondWithError(w, http.StatusInternalServerError, "Couldn't delete feed")
+		respondWithError(w, http.StatusInternalServerError, "Couldn't delete feed follow")
 		return
 	}
 
 	respondWithJSON(w, http.StatusOK, nil)
+}
+
+func (cfg *apiConfig) getFeedFollows(w http.ResponseWriter, r *http.Request, u database.User) {
+	feeds, err := cfg.DB.GetFeedFollows(r.Context(), u.ID)
+	if err != nil {
+		respondWithError(w, http.StatusInternalServerError, "Couldn't get feed follows")
+		return
+	}
+
+	respondWithJSON(w, http.StatusOK, databaseFeedFollowsToFeedFollows(feeds))
 }
