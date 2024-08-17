@@ -6,6 +6,7 @@ import (
 	"log"
 	"net/http"
 	"os"
+	"sync"
 	"time"
 
 	"github.com/barturba/blog-aggregator/internal/database"
@@ -49,19 +50,11 @@ func main() {
 		Client: client,
 	}
 
-	// testing
-	testing := false
-	if testing {
-		data, err := apiCfg.Client.FetchRSS("https://blog.boot.dev/index.xml")
-		if err != nil {
-			log.Fatal(fmt.Printf("error fetching data %v\n", err))
-		}
-		apiCfg.Client.ProcessRSS(data)
-
-		// print a list of all the articles then put this into a separate function
-		os.Exit(0)
-	}
-	// TESTING
+	// TODO: create a worker to run the fetch function regularly
+	var wg sync.WaitGroup
+	maxFeeds := 10
+	workerDelay := time.Second * 60
+	go apiCfg.runWorker(&wg, maxFeeds, workerDelay)
 
 	mux := http.NewServeMux()
 
