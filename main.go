@@ -9,15 +9,18 @@ import (
 	"time"
 
 	"github.com/barturba/blog-aggregator/internal/database"
+	"github.com/barturba/blog-aggregator/internal/rssapi"
 	"github.com/joho/godotenv"
 	_ "github.com/lib/pq"
 )
 
 type apiConfig struct {
-	DB *database.Queries
+	DB     *database.Queries
+	Client rssapi.Client
 }
 
 func main() {
+
 	err := godotenv.Load()
 	if err != nil {
 		log.Fatal("Couldn't load .env file")
@@ -39,9 +42,27 @@ func main() {
 	}
 	dbQueries := database.New(db)
 
+	client := rssapi.NewClient(5 * time.Second)
+
 	apiCfg := apiConfig{
-		DB: dbQueries,
+		DB:     dbQueries,
+		Client: client,
 	}
+
+	// testing
+	testing := false
+	if testing {
+		data, err := apiCfg.Client.FetchRSS("https://blog.boot.dev/index.xml")
+		if err != nil {
+			log.Fatal(fmt.Printf("error fetching data %v\n", err))
+		}
+		for _, item := range data.Channel.Item {
+			fmt.Printf("got item: %v\n", item.Title)
+		}
+		// print a list of all the articles then put this into a separate function
+		os.Exit(0)
+	}
+	// TESTING
 
 	mux := http.NewServeMux()
 
