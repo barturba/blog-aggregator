@@ -8,7 +8,8 @@ SELECT * FROM feeds;
 
 -- name: GetNextFeedsToFetch :many
 SELECT * FROM feeds
-where last_fetched_at is null order by last_fetched_at asc;
+where last_fetched_at is null order by last_fetched_at asc
+LIMIT $1;
 
 -- name: MarkFeedFetched :exec
 UPDATE feeds

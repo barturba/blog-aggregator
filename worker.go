@@ -27,7 +27,7 @@ func (c *apiConfig) runWorker(wg *sync.WaitGroup, maxFeeds int, workerDelay time
 		fmt.Printf("fetching data from database\n")
 		time.Sleep(1)
 		// TODO: GetNextFeedsToFetch should accept input for n
-		_, err := c.DB.GetNextFeedsToFetch(ctx)
+		_, err := c.DB.GetNextFeedsToFetch(ctx, int32(maxFeeds))
 		if err != nil {
 			log.Printf("error when getting feeds from database: %s\n", err)
 			return
