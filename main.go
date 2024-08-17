@@ -56,9 +56,8 @@ func main() {
 		if err != nil {
 			log.Fatal(fmt.Printf("error fetching data %v\n", err))
 		}
-		for _, item := range data.Channel.Item {
-			fmt.Printf("got item: %v\n", item.Title)
-		}
+		apiCfg.Client.ProcessRSS(data)
+
 		// print a list of all the articles then put this into a separate function
 		os.Exit(0)
 	}
