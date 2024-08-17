@@ -50,7 +50,6 @@ func main() {
 		Client: client,
 	}
 
-	// TODO: create a worker to run the fetch function regularly
 	var wg sync.WaitGroup
 	maxFeeds := 10
 	workerDelay := time.Second * 60

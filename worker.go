@@ -11,12 +11,6 @@ import (
 )
 
 func (c *apiConfig) runWorker(wg *sync.WaitGroup, maxFeeds int, workerDelay time.Duration) {
-	// this worker is run within its own goroutine
-	// 1. fetch n entries from the database
-	// 2. perform data fetching and processing concurrently for each feed in the batch
-	//   a. fetch data
-	//   b. process data
-	// 3. sleep for a period, workerDelay
 	fmt.Printf("starting main worker\n")
 	fmt.Printf("maxFeeds %v\n", maxFeeds)
 	fmt.Printf("workerDelay %v\n", workerDelay)
