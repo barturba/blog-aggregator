@@ -4,7 +4,6 @@ import (
 	"context"
 	"encoding/xml"
 	"errors"
-	"fmt"
 	"io"
 	"log"
 	"net/http"
@@ -142,10 +141,4 @@ func fetchRSS(url string) (Rss, error) {
 	}
 
 	return rssResp, nil
-}
-
-func processRSS(data Rss) {
-	for _, item := range data.Channel.Item {
-		fmt.Printf("got item: %v\n", item.Title)
-	}
 }
