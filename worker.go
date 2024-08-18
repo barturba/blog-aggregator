@@ -14,40 +14,71 @@ import (
 	"github.com/barturba/blog-aggregator/internal/database"
 )
 
-func runWorker(db *database.Queries, maxFeeds int, workerDelay time.Duration) {
-	var wg sync.WaitGroup
+func runWorker(db *database.Queries, concurrency int, timeBetweenRequest time.Duration) {
+	ticker := time.NewTicker(timeBetweenRequest)
 	ctx := context.Background()
-	var feedsToFetch []database.Feed
-	var err error
-
-	for {
-
-		time.Sleep(1 * time.Second)
-		feedsToFetch, err = db.GetNextFeedsToFetch(ctx, int32(maxFeeds))
+	for ; ; <-ticker.C {
+		feeds, err := db.GetNextFeedsToFetch(ctx, int32(concurrency))
 		if err != nil {
 			log.Printf("error when getting feeds from database: %s\n", err)
 			return
 		}
+		log.Printf("found %v feeds from fetch!", len(feeds))
 
-		for _, feed := range feedsToFetch {
+		wg := &sync.WaitGroup{}
+		for _, feed := range feeds {
 			wg.Add(1)
-			go func() {
-				defer wg.Done()
-				data, err := fetchRSS(feed.Url)
-				if err != nil {
-					log.Fatal(fmt.Printf("error fetching data %v\n", err))
-				}
-
-				for _, item := range data.Channel.Item {
-					fmt.Printf("found post: %v\n", item.Title)
-				}
-				log.Printf("Feed %s collected, %v posts found", feed.Name, len(data.Channel.Item))
-			}()
+			go scrapeFeed(db, wg, feed)
 		}
+		wg.Wait()
 
-		fmt.Printf("sleeping\n")
-		time.Sleep(workerDelay)
 	}
+
+	// for {
+
+	// 	time.Sleep(1 * time.Second)
+	// 	feedsToFetch, err = db.GetNextFeedsToFetch(ctx, int32(maxFeeds))
+	// 	if err != nil {
+	// 		log.Printf("error when getting feeds from database: %s\n", err)
+	// 		return
+	// 	}
+
+	// 	for _, feed := range feedsToFetch {
+	// 		wg.Add(1)
+	// 		go func() {
+	// 			defer wg.Done()
+	// 			data, err := fetchRSS(feed.Url)
+	// 			if err != nil {
+	// 				log.Fatal(fmt.Printf("error fetching data %v\n", err))
+	// 			}
+
+	// 			for _, item := range data.Channel.Item {
+	// 				fmt.Printf("found post: %v\n", item.Title)
+	// 			}
+	// 			log.Printf("Feed %s collected, %v posts found", feed.Name, len(data.Channel.Item))
+	// 		}()
+	// 	}
+
+	// 	fmt.Printf("sleeping\n")
+	// 	time.Sleep(workerDelay)
+	// }
+}
+
+func scrapeFeed(db *database.Queries, wg *sync.WaitGroup, feed database.Feed) {
+	defer wg.Done()
+	_, err := db.MarkFeedFetched(context.Background(), feed.ID)
+	if err != nil {
+		log.Printf("couldn't mark feed %s as fetched: %v", feed.Name, err)
+	}
+
+	feedData, err := fetchRSS(feed.Url)
+	if err != nil {
+		log.Printf("couldn't fetch feed %s as fetched: %v", feed.Name, err)
+	}
+	for _, item := range feedData.Channel.Item {
+		log.Println("Found post", item.Title)
+	}
+	log.Printf("Feed %s collected, %v posts found", feed.Name, len(feedData.Channel.Item))
 }
 
 type Rss struct {
