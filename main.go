@@ -65,9 +65,9 @@ func main() {
 		ReadTimeout:  30 * time.Second,
 	}
 
-	maxFeeds := 10
-	workerDelay := time.Second * 60
-	go runWorker(apiCfg.DB, maxFeeds, workerDelay)
+	const collectionConcurrency = 10
+	const collectionTimeInterval = time.Minute
+	go runWorker(apiCfg.DB, collectionConcurrency, collectionTimeInterval)
 
 	fmt.Println("server started on ", port)
 	err = srv.ListenAndServe()
