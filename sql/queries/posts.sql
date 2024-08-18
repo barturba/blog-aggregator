@@ -11,7 +11,3 @@ ON posts.feed_id=feed_follows.feed_id
 WHERE feed_follows.user_id = $1
 ORDER BY published_at DESC
 LIMIT $2;
-
--- -- name: DeleteFeedFollows :exec
--- DELETE FROM feed_follows
--- WHERE id = $1;
