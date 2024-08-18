@@ -10,8 +10,10 @@ import (
 	"github.com/barturba/blog-aggregator/internal/database"
 )
 
-func (c *apiConfig) runWorker(wg *sync.WaitGroup, maxFeeds int, workerDelay time.Duration) {
+func (c *apiConfig) runWorker(maxFeeds int, workerDelay time.Duration) {
 	fmt.Printf("starting main worker. maxFeeds %v, workerDelay %v\n", maxFeeds, workerDelay)
+
+	var wg sync.WaitGroup
 
 	ctx := context.Background()
 	var feedsToFetch []database.Feed

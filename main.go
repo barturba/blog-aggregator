@@ -6,7 +6,6 @@ import (
 	"log"
 	"net/http"
 	"os"
-	"sync"
 	"time"
 
 	"github.com/barturba/blog-aggregator/internal/database"
@@ -50,11 +49,6 @@ func main() {
 		Client: client,
 	}
 
-	var wg sync.WaitGroup
-	maxFeeds := 10
-	workerDelay := time.Second * 60
-	go apiCfg.runWorker(&wg, maxFeeds, workerDelay)
-
 	mux := http.NewServeMux()
 
 	mux.HandleFunc("POST /v1/users", apiCfg.handleUsers)
@@ -75,6 +69,10 @@ func main() {
 		WriteTimeout: 30 * time.Second,
 		ReadTimeout:  30 * time.Second,
 	}
+
+	maxFeeds := 10
+	workerDelay := time.Second * 60
+	go apiCfg.runWorker(maxFeeds, workerDelay)
 
 	fmt.Println("server started on ", port)
 	err = srv.ListenAndServe()
