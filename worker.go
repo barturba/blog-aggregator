@@ -2,6 +2,7 @@ package main
 
 import (
 	"context"
+	"database/sql"
 	"encoding/xml"
 	"errors"
 	"io"
@@ -11,6 +12,8 @@ import (
 	"time"
 
 	"github.com/barturba/blog-aggregator/internal/database"
+	"github.com/google/uuid"
+	"github.com/lib/pq"
 )
 
 func runWorker(db *database.Queries, concurrency int, timeBetweenRequest time.Duration) {
@@ -37,17 +40,41 @@ func runWorker(db *database.Queries, concurrency int, timeBetweenRequest time.Du
 
 func scrapeFeed(db *database.Queries, wg *sync.WaitGroup, feed database.Feed) {
 	defer wg.Done()
-	_, err := db.MarkFeedFetched(context.Background(), feed.ID)
-	if err != nil {
-		log.Printf("couldn't mark feed %s as fetched: %v", feed.Name, err)
-	}
+	// _, err := db.MarkFeedFetched(context.Background(), feed.ID)
+	// if err != nil {
+	// 	log.Printf("couldn't mark feed %s as fetched: %v", feed.Name, err)
+	// }
 
 	feedData, err := fetchRSS(feed.Url)
 	if err != nil {
 		log.Printf("couldn't fetch feed %s as fetched: %v", feed.Name, err)
 	}
 	for _, item := range feedData.Channel.Item {
-		log.Println("Found post", item.Title)
+		publishedAt, err := time.Parse("Mon, 2 Jan 2006 15:04:05 -0700", item.PubDate)
+		if err != nil {
+			log.Printf("error parsing published time %s: %v", item.PubDate, err)
+			publishedAt = time.Now()
+			log.Printf("set published_at to %s", publishedAt.String())
+		}
+		_, err = db.CreatePost(context.Background(), database.CreatePostParams{
+			ID:          uuid.New(),
+			CreatedAt:   time.Now(),
+			UpdatedAt:   time.Now(),
+			Title:       item.Title,
+			Url:         item.Link,
+			Description: sql.NullString{String: item.Description, Valid: true},
+			PublishedAt: publishedAt,
+			FeedID:      feed.ID,
+		})
+		if err != nil {
+			pqErr := err.(*pq.Error)
+			// If the error is something other than a duplicate warning, then print the error to the log.
+			if pqErr.Code.Class() != "23" {
+				log.Printf("couldn't save feed %s: %v", feed.Name, err)
+			}
+		} else {
+			log.Println("created post", item.Title)
+		}
 	}
 	log.Printf("Feed %s collected, %v posts found", feed.Name, len(feedData.Channel.Item))
 }
