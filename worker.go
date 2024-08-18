@@ -33,34 +33,6 @@ func runWorker(db *database.Queries, concurrency int, timeBetweenRequest time.Du
 
 	}
 
-	// for {
-
-	// 	time.Sleep(1 * time.Second)
-	// 	feedsToFetch, err = db.GetNextFeedsToFetch(ctx, int32(maxFeeds))
-	// 	if err != nil {
-	// 		log.Printf("error when getting feeds from database: %s\n", err)
-	// 		return
-	// 	}
-
-	// 	for _, feed := range feedsToFetch {
-	// 		wg.Add(1)
-	// 		go func() {
-	// 			defer wg.Done()
-	// 			data, err := fetchRSS(feed.Url)
-	// 			if err != nil {
-	// 				log.Fatal(fmt.Printf("error fetching data %v\n", err))
-	// 			}
-
-	// 			for _, item := range data.Channel.Item {
-	// 				fmt.Printf("found post: %v\n", item.Title)
-	// 			}
-	// 			log.Printf("Feed %s collected, %v posts found", feed.Name, len(data.Channel.Item))
-	// 		}()
-	// 	}
-
-	// 	fmt.Printf("sleeping\n")
-	// 	time.Sleep(workerDelay)
-	// }
 }
 
 func scrapeFeed(db *database.Queries, wg *sync.WaitGroup, feed database.Feed) {
