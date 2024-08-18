@@ -34,7 +34,7 @@ func (c *apiConfig) runWorker(wg *sync.WaitGroup, maxFeeds int, workerDelay time
 			go func() {
 				defer wg.Done()
 				fmt.Printf("starting data fetching worker for feed %s\n", feed.ID.String())
-				data, err := c.Client.FetchRSS("https://blog.boot.dev/index.xml")
+				data, err := c.Client.FetchRSS(feed.Url)
 				if err != nil {
 					log.Fatal(fmt.Printf("error fetching data %v\n", err))
 				}
