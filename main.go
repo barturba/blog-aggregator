@@ -9,14 +9,12 @@ import (
 	"time"
 
 	"github.com/barturba/blog-aggregator/internal/database"
-	"github.com/barturba/blog-aggregator/internal/rssapi"
 	"github.com/joho/godotenv"
 	_ "github.com/lib/pq"
 )
 
 type apiConfig struct {
-	DB     *database.Queries
-	Client rssapi.Client
+	DB *database.Queries
 }
 
 func main() {
@@ -42,11 +40,8 @@ func main() {
 	}
 	dbQueries := database.New(db)
 
-	client := rssapi.NewClient(5 * time.Second)
-
 	apiCfg := apiConfig{
-		DB:     dbQueries,
-		Client: client,
+		DB: dbQueries,
 	}
 
 	mux := http.NewServeMux()
@@ -72,7 +67,7 @@ func main() {
 
 	maxFeeds := 10
 	workerDelay := time.Second * 60
-	go apiCfg.runWorker(maxFeeds, workerDelay)
+	go runWorker(apiCfg.DB, maxFeeds, workerDelay)
 
 	fmt.Println("server started on ", port)
 	err = srv.ListenAndServe()
