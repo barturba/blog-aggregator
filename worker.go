@@ -25,7 +25,9 @@ func runWorker(db *database.Queries, concurrency int, timeBetweenRequest time.Du
 			log.Printf("error when getting feeds from database: %s\n", err)
 			return
 		}
-		log.Printf("found %v feeds from fetch!", len(feeds))
+		if len(feeds) > 0 {
+			log.Printf("found %v feeds from fetch!", len(feeds))
+		}
 
 		wg := &sync.WaitGroup{}
 		for _, feed := range feeds {
