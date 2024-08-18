@@ -40,10 +40,10 @@ func runWorker(db *database.Queries, concurrency int, timeBetweenRequest time.Du
 
 func scrapeFeed(db *database.Queries, wg *sync.WaitGroup, feed database.Feed) {
 	defer wg.Done()
-	// _, err := db.MarkFeedFetched(context.Background(), feed.ID)
-	// if err != nil {
-	// 	log.Printf("couldn't mark feed %s as fetched: %v", feed.Name, err)
-	// }
+	_, err := db.MarkFeedFetched(context.Background(), feed.ID)
+	if err != nil {
+		log.Printf("couldn't mark feed %s as fetched: %v", feed.Name, err)
+	}
 
 	feedData, err := fetchRSS(feed.Url)
 	if err != nil {
